@@ -1,0 +1,10 @@
+import { readFileSync } from 'node:fs';import vm from 'node:vm';import assert from 'node:assert/strict';
+const memory=()=>{const m=new Map;return {getItem:k=>m.get(k)??null,setItem:(k,v)=>m.set(k,String(v)),removeItem:k=>m.delete(k)}};
+let localStorage=memory(),sessionStorage=memory(),window={};const ctx=vm.createContext({window,localStorage,sessionStorage});vm.runInContext(readFileSync(new URL('../public/student-session.js',import.meta.url),'utf8'),ctx);const s=window.StudentSession;
+const a={code:'ABCD2345',studentNo:1,name:'첫째학생'},b={...a,studentNo:2,name:'둘째학생'};
+assert.equal(s.current(),null);s.activate(a);assert.equal(s.current().name,a.name);
+localStorage.setItem('polyhedron-notes-v1',JSON.stringify({answers:{reason:'첫 학생 답변'}}));localStorage.setItem('polyhedron-extra-v1','{"q1":"첫 추가답변"}');
+s.activate(b);assert.equal(localStorage.getItem('polyhedron-notes-v1'),null);assert.equal(localStorage.getItem('polyhedron-extra-v1'),null);
+localStorage.setItem('polyhedron-notes-v1',JSON.stringify({answers:{reason:'둘째 학생 답변'}}));s.activate(a);assert.equal(JSON.parse(localStorage.getItem('polyhedron-notes-v1')).answers.reason,'첫 학생 답변');assert.equal(JSON.parse(localStorage.getItem('polyhedron-submit-v1')).name,a.name);
+s.activate(b);assert.equal(JSON.parse(localStorage.getItem('polyhedron-notes-v1')).answers.reason,'둘째 학생 답변');
+console.log('PASS: student entry profile, identity changes, isolated drafts and receipts, restore prior student drafts.');
