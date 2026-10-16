@@ -57,3 +57,6 @@ next-env.d.ts
 
 # TypeScript incremental cache
 *.tsbuildinfo
+
+# Vercel static build output
+/vercel-dist/
